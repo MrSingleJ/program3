@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>股票量化交易系统</title>
+        <script src="https://cdn.bootcss.com/jquery/1.10.0/jquery.min.js"></script>
+</head>
+<script>
+        window.onload=function(){
+            setInterval(set,10000);
+        }
+        function set() {
+            var shares=$("#shares").val()                
+                $.ajax({
+                    url:'http://127.0.0.1:5000/test',
+                    type:'POST',
+                    dataType: "json",
+                    data:{
+                        share:shares
+                    },
+                    success:function(data){
+                         $("#shares_info").html("")                    
+                        str = "<table  id=res width = \"20%\" border=\"1\" ><tr><th>name</th><th>open</th><th>pre_close</th><th>price</th><th>date</th><th>time</th><th>code</th></tr></table>"
+                        $("#shares_info").append(str)               
+                        var length = 0
+                        for(var ever in data) {
+                            length = length +1
+                        }
+                        for (var i=0;i<length; i++){
+                            d = jQuery.parseJSON(data[i]);
+                            item = "<tr><td>"+d['name']+"</td><td>"+d['open']+"</td><td>"+d['pre_close']+"</td><td>"+d['price']+"</td><td>"+d['date']+"</td><td>"+d['time']+"</td><td>"+d['code']+"</td><td>"+"<input  value='量化' onClick =\"check(this)\" type='button' id="+d['code']+">"+"</td></tr>";
+                            $("#res").append(item)
+                        }
+                    }
+                })                 
+        }
+        function check(obj) {
+            var i = obj.id
+            $.ajax({
+                    url:'http://127.0.0.1:5000/stock',
+                    type:'POST',
+                    data:{
+                        stock:i
+                    },
+                    success:function(data){ 
+                        $("#shares_info2").append(data)                                          
+                    }
+                })         
+        }
+    </script>
+<body>
+    <div>
+        <input type="text" id=shares />
+        <input type="button" value="设置" Onclick = "" style ="width:50px;height:30px" id=set>
+    </div>
+    <div id=shares_info>      
+    </div>
+    <div id =shares_info2></div>
+</body>
+</html>

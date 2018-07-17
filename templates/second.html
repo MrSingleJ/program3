@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.bootcss.com/jquery/1.10.0/jquery.min.js"></script>
+</head>
+<script>
+        $(document).ready(function(){
+            $("#collect_data").click(function(){
+                $("#res1").html("正在采集数据.......")
+                var time = $("#meeting").val()
+                var code = $("#b").val()
+                alert(time + code)
+                $.ajax({
+                    url:'http://127.0.0.1:5000/collect',
+                    type:'POST',
+                    data:{
+                        time:time,
+                        code,code
+                    },
+                    success:function(data){  
+                        $("#res1").append(data)                        
+                    }
+                    
+                })
+            }) 
+            $("#export_data").click(function(){
+                var value=$("#b").val()
+                alert(value)
+                $("#res1").html("正在从数据库中导出数据.......")
+                $.get("http://127.0.0.1:5000/export",function(data,status){               
+                    $("#res1").append(data)    
+                })
+            })
+            $("#manage_data").click(function(){
+                $("#res1").html("正在加工数据.......")
+                $.get("http://127.0.0.1:5000/manage",function(data,status){ 
+                    $('#res1').append(data)                         
+                })
+            })
+            $("#forecast").click(function(){
+                $("#res1").html("正在预测.......")
+                $.get("http://127.0.0.1:5000/forecast",function(data,status){ 
+                    $('#res1').append(data)                         
+                })
+            })
+            $("#trade").click(function(){
+                $("#res2").html("正在统计.......")
+                $.ajax({
+                    url:'http://127.0.0.1:5000/trade',
+                    type:'POST',
+                    dataType: "json",
+                    data:{},
+                    success:function(data){  
+                        $("#res2").append("统计完成")               
+                        str = "<table  id=res3 width = \"20%\" border=\"1\" ><tr><th></th><th>交易次数</th><th>盈利次数</th><th>亏损次数</th><th>盈亏平衡次数</th><th>盈亏损失比例</th><th>盈利平均值</th><th>亏损平均值</th><th>平均收益</th><th>标准差</th><th>最大亏损</th><th>最大盈利</th><th>夏普比率</th></tr></table>"
+                        $("#res2").append(str)               
+                        var length = 0
+                        for(var ever in data) {
+                            length = length +1
+                        }
+                        for (var i=0;i<length; i++){
+                            d = jQuery.parseJSON(data[i]);
+                            item = "<tr><td>"+d['name']+"</td><td>"+d['cnt']+"</td><td>"+d['wins']+"</td><td>"+d['losses']+"</td><td>"+d['evens']+"</td><td>"+d['win_r']+"</td><td>"+d['mean_w']+"</td><td>"+d['mean_l']+"</td><td>"+d['mean_trd']+"</td><td>"+d['sd']+"</td><td>"+d['max_l']+"</td><td>"+d['max_w']+"</td><td>"+d['sharpe_r']+"</td><td>"+"</td></tr>";
+                            $("#res3").append(item)                          
+                        }
+                    }
+                })
+            })
+            $.ajaxSetup({
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+              });
+        })
+    </script>
+<body>
+    <div>
+        <label for="meeting">开始时间：</label><input id=meeting type="date" value="2014-01-13"/><p>股票：</p>
+        <input type="text" value={{content}} style ="width:200px;height:30px" id=b>
+        <input type="button" value="采集数据" style ="width:200px;height:30px" id=collect_data>
+        <input type="button" value="导出数据" style ="width:200px;height:30px"  id=export_data>
+        <input type="button" value="加工数据" style ="width:200px;height:30px"  id=manage_data></br>
+        <input type="button" value="预测" style ="width:200px;height:30px"  id=forecast>
+    </div>
+    <div id=res1></div>
+    <input type="button" value="交易策略的对比" style ="width:200px;height:30px"  id=trade>
+    <div id=res2></div>
+</body>
+</html>
